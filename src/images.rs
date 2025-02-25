@@ -21,7 +21,9 @@ pub struct ImageDefinition {
 const IMAGES_FOLDER: &str = "sd";
 
 
-static IMAGES: [ImageDefinition; 9] = [
+static IMAGES: [ImageDefinition; 10] = [
+    ImageDefinition {id: "iload", name: "iLoad", file: "iload.bin",
+        address: 0xfd10, disk_set: 0xff, int_rx: false, int_sys_tick: false},
     ImageDefinition {id: "basic", name: "Basic", file: "basic47.bin",
         address: 0x0000, disk_set: 0xff, int_rx: true, int_sys_tick: false},
     ImageDefinition {id: "forth", name: "Forth", file: "forth13.bin",
