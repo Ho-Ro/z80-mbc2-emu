@@ -316,7 +316,7 @@ impl Machine for Mbc2Machine {
                     if self.cpm_warm_boot {
                         sysflags += 0b1_0000;
                     }
-		    sysflags += 0b100_0000; // debug 256kBytes!
+		    // sysflags += 0b100_0000; // debug 256kBytes!
                     sysflags
                 },
                 0x84 => {
