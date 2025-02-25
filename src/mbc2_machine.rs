@@ -51,6 +51,8 @@ pub struct Mbc2Machine {
     spp_fd: bool,
 
     pub trace: bool,
+
+    verbosity: u8,
 }
 
 impl Mbc2Machine {
@@ -89,6 +91,8 @@ impl Mbc2Machine {
             spp_fd: false,
         
             trace: false,
+
+	    verbosity: 0,
         }
     }
 
@@ -141,7 +145,7 @@ impl Machine for Mbc2Machine {
     }
 
     fn port_out(&mut self, address: u16, value: u8) {
-        //println!("OUT({:04x}, {:02x})", address, value);
+        // println!("OUT({:04x}, {:02x})", address, value);
         let a0 = (address & 1) == 1;
         if a0 {
             // Store opcode
@@ -211,6 +215,22 @@ impl Machine for Mbc2Machine {
                 //0x12 => { // WRSPP
                 //    // Todo: write value to a printer.out file.
                 //},
+		0x20 => { // SIOA TxD
+		    println!("SIOA TxD <<{}", value);
+		},
+		0x21 => { // SIOA TxD
+		    println!("SIOB TxD <<{}", value);
+		},
+		0x22 => { // SIOA CTRL
+		    println!("SIOA CTRL <<{}", value);
+		},
+		0x23 => { // SIOB CTRL
+		    println!("SIOB CTRL <<{}", value);
+		},
+		0x7E => { // SET VERBOSITY
+		    println!("SET VERBOSITY <<{}", value);
+		    self.verbosity = value;
+		},
                 _ => implemented = false,
             }
 
@@ -296,6 +316,7 @@ impl Machine for Mbc2Machine {
                     if self.cpm_warm_boot {
                         sysflags += 0b1_0000;
                     }
+		    sysflags += 0b100_0000; // debug 256kBytes!
                     sysflags
                 },
                 0x84 => {
@@ -344,7 +365,7 @@ impl Machine for Mbc2Machine {
                     self.int_status = 0;
                     value
                 },
-                0x90 => { // GETSPP
+                0x8A => { // GETSPP
                     //    I/O DATA:  D7 D6 D5 D4 D3 D2 D1 D0
                     //              ---------------------------------------------------------
                     //                0  0  0  0  0  0  0  0    SPP emulation disabled
@@ -366,11 +387,41 @@ impl Machine for Mbc2Machine {
                         0
                     }
                 },
+		0xA0 => { // SIOA RxD
+		    println!("SIOA RxD");
+		    0xff
+		},
+		0xA1 => { // SIOB RxD
+		    println!("SIOA RxD");
+		    0xff
+		},
+		0xA2 => { // SIOA RxSTAT
+		    println!("SIOA RxSTAT");
+		    0x0
+		},
+		0xA3 => { // SIOB RxSTAT
+		    println!("SIOB RxSTAT");
+		    0x0
+		},
+		0xA4 => { // SIOA TxSTAT
+		    println!("SIOA TxSTAT");
+		    0x0
+		},
+		0xA5 => { // SIOB TxSTAT
+		println!("SIOB TxSTAT");
+		    0x0
+		},
+		0xFE => { // GET VERBOSITY
+		    println!("GET VERBOSITY");
+		    let value = self.verbosity;
+		    value
+		},
                 _ => {
                     implemented = false;
                     0
                 }
             };
+
             if !implemented {
                 println!("<<{} not implemented>>",
                     opcode_name(self.opcode));
@@ -408,6 +459,11 @@ fn opcode_name(opcode: u8) -> &'static str {
         0x10 => "SETOPT",
         0x11 => "SETSPP",
         0x12 => "WRSPP",
+        0x20 => "SIOA TxD",
+        0x21 => "SIOB TxD",
+        0x22 => "SIOA CTRL",
+        0x23 => "SIOA CTRL",
+        0x7E => "SET VERBOSITY",
 
         0x80 => "USER KEY",
         0x81 => "GPIOA R",
@@ -420,7 +476,13 @@ fn opcode_name(opcode: u8) -> &'static str {
         0x88 => "ATXBUFF",
         0x89 => "SYSIRQ",
         0x8A => "GETSPP",
-
+        0xA0 => "SIOA RxD",
+        0xA1 => "SIOB RxD",
+        0xA2 => "SIOA RxSTAT",
+        0xA3 => "SIOB RxSTAT",
+        0xA4 => "SIOA TxSTAT",
+        0xA5 => "SIOB TxSTAT",
+        0xFE => "GET VERBOSITY",
         0xFF => "NOP",
         _ => "UNKNOWN"
     }
