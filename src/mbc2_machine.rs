@@ -227,6 +227,9 @@ impl Machine for Mbc2Machine {
                 //0x12 => { // WRSPP
                 //    // Todo: write value to a printer.out file.
                 //},
+		0x13 => { // SETVECTOR
+		    println!("SETVECTOR << 0x{:02X}", value);
+		},
 		0x20 => { // SIOA TxD
 		    println!("SIOA TxD << 0x{:02X}", value);
 		},
@@ -481,6 +484,7 @@ fn opcode_name(opcode: u8) -> &'static str {
         0x10 => "SETOPT",
         0x11 => "SETSPP",
         0x12 => "WRSPP",
+        0x13 => "SETVECTOR",
 
         0x20 => "SIOA TxD",
         0x21 => "SIOB TxD",
